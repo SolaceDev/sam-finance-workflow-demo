@@ -1,6 +1,6 @@
 # Autonomous Institutional Trading Desk — Solace Agent Mesh (SAM)
 
-An enterprise-grade, multi-agent financial trading desk built with declarative configurations on [Solace Agent Mesh (SAM)](https://github.com/SolaceLabs/solace-agent-mesh).
+An enterprise-grade, multi-agent financial trading desk built with declarative configurations on [Solace Agent Mesh (SAM)](https://docs.solace.com/Agent-Mesh/agent-mesh.htm).
 
 This repository demonstrates the architectural power of **Agent Nodes vs. Tool Nodes** in AI workflow design. It provides a head-to-head comparison between an unoptimized **"All-Agent"** baseline workflow and a graph-optimized **"Hybrid Tool/Agent"** workflow that achieves an **88.5% reduction in token consumption** and **57.2% faster execution** while preserving 100% of the cognitive reasoning.
 
@@ -76,49 +76,6 @@ flowchart TD
     classDef toolNode fill:#d1e7dd,stroke:#0f5132,stroke-width:1.5px,color:#0f5132;
     classDef agentNode fill:#cfe2ff,stroke:#084298,stroke-width:1.5px,color:#084298;
     classDef switchNode fill:#fff3cd,stroke:#664d03,stroke-width:1.5px,color:#664d03;
-```
-
-```text
-========================================================================================
-                              TRADING DESK WORKFLOW TOPOLOGY
-========================================================================================
-
- [Ticker Input]
-       │
-       ├─────────────────────────┬─────────────────────────┐
-       ▼                         ▼                         ▼
- [Technicals]              [Fundamentals]          [Options Sentiment]
- Yahoo Finance API          Financials API          CBOE Options Chain
- (Price, SMAs, RSI)        (Margins, Growth)       (IV30, Put/Call Ratio)
-       │                         │                         │
-       └─────────────────────────┼─────────────────────────┘
-                                 │
-                 ┌───────────────┴───────────────┐
-                 ▼                               ▼
-       [ Bull Researcher ]             [ Bear Researcher ]
-     Upside Catalysts & Edge         Downside Multiple Risks
-                 │                               │
-                 └───────────────┬───────────────┘
-                                 ▼
-                         [ Trader Agent ]
-                     Synthesizes Debate & Generates
-                     Order Proposal (BUY/SELL/HOLD)
-                                 │
-                                 ▼
-                         [  Risk Audit  ]
-                     Validates 10% Equity Cap,
-                     2.0 R/R Ratio & Cash Liquidity
-                                 │
-                                 ▼
-                     < Risk Decision Gate >
-                      /        |        \
-            [BUY]    /      [SELL]       \  [HOLD / REJECTED]
-                    ▼          ▼          ▼
-               [Exec Buy]  [Exec Sell]  [Hold Position]
-                    \          |          /
-                     ▼         ▼         ▼
-                [ SQLite Portfolio Ledger Commit ]
-========================================================================================
 ```
 
 ### The Two Workflow Variations
