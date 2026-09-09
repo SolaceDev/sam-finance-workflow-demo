@@ -1,0 +1,6 @@
+version: 1
+tools:
+  finance_tools:
+    runtime: go
+    executable: ./finance-tools
+    timeout_seconds: 60

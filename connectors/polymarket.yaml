@@ -1,0 +1,21 @@
+kind: connector
+name: polymarket
+description: |
+  Read-only OpenAPI connector for the Polymarket Gamma API — the public
+  prediction-market data source behind the trading-desk demo. No credentials:
+  the Gamma API is keyless and read-only, so auth_type is `none`.
+
+  The published spec carries 116 operations; allow_list trims that to the four
+  the desk actually uses, so the quant agent's tool list stays legible instead
+  of drowning the model in sports and crypto endpoints.
+
+  The spec has no `servers` block, so base_url must be set explicitly.
+
+spec:
+  type: api
+  subtype: openapi
+  values:
+    specification_url: "https://gamma-api.polymarket.com/openapi.json"
+    base_url: "https://gamma-api.polymarket.com"
+    auth_type: "none"
+    allow_list: "public-search,get-markets,get-events,get-event-by-slug"

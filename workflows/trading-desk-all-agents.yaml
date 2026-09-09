@@ -1,0 +1,122 @@
+kind: workflow
+name: TradingDeskAllAgents
+description: >-
+  Institutional Multi-Agent Trading Desk Workflow. Executes 5 waves across 8 agents:
+  parallel technical/fundamental/prediction analysis, adversarial bull vs bear debate,
+  order proposal formulation, portfolio risk audit, and CIO SQLite execution.
+
+spec:
+  appConfig:
+    input_schema:
+      type: object
+      properties:
+        ticker:
+          type: string
+          description: Equity ticker symbol (e.g. NVDA, AAPL)
+          default: "NVDA"
+        user_query:
+          type: string
+          description: Evaluation or allocation request
+          default: "Evaluate NVDA for portfolio allocation"
+      required:
+        - ticker
+
+    nodes:
+      # Wave 1: Parallel Specialist Analysts
+      - id: technical_analysis
+        type: agent
+        agent_name: MarketAnalyst
+        input:
+          ticker: "{{workflow.input.ticker}}"
+          task: "Perform quantitative technical analysis, moving averages, RSI 14, MACD, and support/resistance levels for {{workflow.input.ticker}}."
+
+      - id: fundamental_analysis
+        type: agent
+        agent_name: FundamentalsAnalyst
+        input:
+          ticker: "{{workflow.input.ticker}}"
+          task: "Evaluate corporate health, revenue growth, operating margins, P/E multiples, and balance sheet strength for {{workflow.input.ticker}}."
+
+      - id: options_sentiment
+        type: agent
+        agent_name: OptionsAnalyst
+        input:
+          ticker: "{{workflow.input.ticker}}"
+          task: "Query institutional options market flow, 30-day implied volatility (IV30), Put/Call volume and open interest ratios for {{workflow.input.ticker}}."
+
+      # Wave 2: Parallel Adversarial Debate
+      - id: bull_thesis
+        type: agent
+        agent_name: BullResearcher
+        depends_on:
+          - technical_analysis
+          - fundamental_analysis
+          - options_sentiment
+        input:
+          ticker: "{{workflow.input.ticker}}"
+          technicals: "{{technical_analysis.output}}"
+          fundamentals: "{{fundamental_analysis.output}}"
+          options_sentiment: "{{options_sentiment.output}}"
+          task: "Construct the strongest data-backed bullish investment case, upside catalysts, valuation justification, and rebuttals to bear risks for {{workflow.input.ticker}}."
+
+      - id: bear_thesis
+        type: agent
+        agent_name: BearResearcher
+        depends_on:
+          - technical_analysis
+          - fundamental_analysis
+          - options_sentiment
+        input:
+          ticker: "{{workflow.input.ticker}}"
+          technicals: "{{technical_analysis.output}}"
+          fundamentals: "{{fundamental_analysis.output}}"
+          options_sentiment: "{{options_sentiment.output}}"
+          task: "Construct the most rigorous bearish critique, highlighting multiple compression risks, margin pressures, operational blindspots, and downside threats for {{workflow.input.ticker}}."
+
+      # Wave 3: Order Proposal Formulation
+      - id: order_formulation
+        type: agent
+        agent_name: Trader
+        depends_on:
+          - bull_thesis
+          - bear_thesis
+        input:
+          ticker: "{{workflow.input.ticker}}"
+          bull_thesis: "{{bull_thesis.output}}"
+          bear_thesis: "{{bear_thesis.output}}"
+          task: "Weigh the Bull and Bear arguments and formulate a risk-managed Trade Proposal with action (BUY/SELL/HOLD), suggested shares, limit price, stop-loss, and profit target for {{workflow.input.ticker}}."
+
+      # Wave 4: Risk Audit
+      - id: risk_audit
+        type: agent
+        agent_name: RiskOfficer
+        depends_on:
+          - order_formulation
+        input:
+          ticker: "{{workflow.input.ticker}}"
+          trade_proposal: "{{order_formulation.output}}"
+          task: "Audit the trade proposal against the current SQLite portfolio cash balance and the 10% single-asset cap. Issue an APPROVED, MODIFIED, or REJECTED risk verdict."
+
+      # Wave 5: CIO Decision & Commit
+      - id: executive_decision
+        type: agent
+        agent_name: PortfolioManager
+        depends_on:
+          - risk_audit
+        input:
+          ticker: "{{workflow.input.ticker}}"
+          bull_thesis: "{{bull_thesis.output}}"
+          bear_thesis: "{{bear_thesis.output}}"
+          trade_proposal: "{{order_formulation.output}}"
+          risk_verdict: "{{risk_audit.output}}"
+          task: "Enforce risk boundaries, execute approved/modified orders into the SQLite portfolio ledger via portfolio_execute_trade, inspect updated balances, and emit the final Executive Trade Ticket."
+
+    output_mapping:
+      executive_ticket: "{{executive_decision.output}}"
+      trade_proposal: "{{order_formulation.output}}"
+      risk_verdict: "{{risk_audit.output}}"
+      bull_thesis: "{{bull_thesis.output}}"
+      bear_thesis: "{{bear_thesis.output}}"
+      technicals: "{{technical_analysis.output}}"
+      fundamentals: "{{fundamental_analysis.output}}"
+      options_sentiment: "{{options_sentiment.output}}"

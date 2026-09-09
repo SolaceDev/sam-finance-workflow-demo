@@ -1,0 +1,38 @@
+kind: manifest
+name: finance-workflow-dev
+description: |
+  Financial Trading Desk Multi-Agent Workflow Demo.
+  Evaluates an equity ticker (e.g. NVDA), performs technical and fundamental analysis,
+  gathers prediction market sentiment, runs an adversarial bull/bear debate,
+  constructs an order proposal, audits against portfolio risk limits, and
+  executes the approved trade into a local SQLite portfolio ledger.
+
+target:
+  url: http://127.0.0.1:8800
+
+defaults:
+  namespace: finance_demo
+
+variables: {}
+
+resources:
+  models:
+    - general
+    - planning
+  connectors:
+    - polymarket
+  toolsets:
+    - finance-tools
+  agents:
+    - MarketAnalyst
+    - FundamentalsAnalyst
+    - PredictionSentimentAnalyst
+    - OptionsAnalyst
+    - BullResearcher
+    - BearResearcher
+    - Trader
+    - RiskOfficer
+    - PortfolioManager
+  workflows:
+    - TradingDeskAllAgents
+    - TradingDeskOptimized

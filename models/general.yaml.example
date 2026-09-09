@@ -1,0 +1,14 @@
+kind: model
+name: general
+spec:
+  provider: custom
+  modelName: anthropic/claude-sonnet-4-6
+  # Configure your LLM gateway endpoint (e.g. OpenRouter, LiteLLM, Ollama)
+  apiBase: https://openrouter.ai/api
+  authConfig:
+    type: apikey
+    api_key: ${LLM_SERVICE_API_KEY, ${OPENROUTER_API_KEY, ""}}
+  maxInputTokens: 1000000
+  modelParams:
+    temperature: 0
+    cache_strategy: 5m

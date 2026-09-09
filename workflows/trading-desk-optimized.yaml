@@ -1,0 +1,230 @@
+kind: workflow
+name: TradingDeskOptimized
+description: >-
+  Graph-Optimized Institutional Trading Desk Workflow. Replaces deterministic
+  data collection, portfolio lookups, full risk auditing, and ledger transactions with
+  zero-token tool and switch nodes, reserving LLM cognitive reasoning for
+  adversarial bull/bear research and trade formulation.
+
+spec:
+  appConfig:
+    toolsets:
+      - finance-tools
+
+    input_schema:
+      type: object
+      properties:
+        ticker:
+          type: string
+          description: Equity ticker symbol (e.g. NVDA, SHOP, AAPL)
+          default: "NVDA"
+        user_query:
+          type: string
+          description: Evaluation or allocation request
+          default: "Evaluate NVDA for portfolio allocation"
+      required:
+        - ticker
+
+    nodes:
+      # Wave 1: Parallel Deterministic Tool Nodes (Zero Tokens, Sub-Second)
+      - id: technicals_tool
+        type: tool
+        tool_name: finance-tools__market_get_technicals
+        input:
+          ticker: "{{workflow.input.ticker}}"
+
+      - id: fundamentals_tool
+        type: tool
+        tool_name: finance-tools__fundamentals_get_financials
+        input:
+          ticker: "{{workflow.input.ticker}}"
+
+      - id: options_tool
+        type: tool
+        tool_name: finance-tools__options_get_sentiment
+        input:
+          ticker: "{{workflow.input.ticker}}"
+
+      - id: portfolio_state
+        type: tool
+        tool_name: finance-tools__portfolio_get_summary
+        input: {}
+
+      # Wave 2: Parallel Adversarial Debate Agents (High-Value Cognitive Reasoning)
+      - id: bull_thesis
+        type: agent
+        agent_name: BullResearcher
+        depends_on:
+          - technicals_tool
+          - fundamentals_tool
+          - options_tool
+        input:
+          ticker: "{{workflow.input.ticker}}"
+          technicals: "{{technicals_tool.output}}"
+          fundamentals: "{{fundamentals_tool.output}}"
+          options_sentiment: "{{options_tool.output}}"
+          task: "Construct the strongest data-backed bullish investment case, upside catalysts, valuation justification, and rebuttals to bear risks for {{workflow.input.ticker}}."
+
+      - id: bear_thesis
+        type: agent
+        agent_name: BearResearcher
+        depends_on:
+          - technicals_tool
+          - fundamentals_tool
+          - options_tool
+        input:
+          ticker: "{{workflow.input.ticker}}"
+          technicals: "{{technicals_tool.output}}"
+          fundamentals: "{{fundamentals_tool.output}}"
+          options_sentiment: "{{options_tool.output}}"
+          task: "Construct the most rigorous bearish critique, highlighting multiple compression risks, margin pressures, operational blindspots, and downside threats for {{workflow.input.ticker}}."
+
+      # Wave 3: Order Formulation & Synthesis Agent (Typed Schema for Switch Gating)
+      - id: order_formulation
+        type: agent
+        agent_name: Trader
+        depends_on:
+          - bull_thesis
+          - bear_thesis
+          - portfolio_state
+        input:
+          ticker: "{{workflow.input.ticker}}"
+          bull_thesis: "{{bull_thesis.output}}"
+          bear_thesis: "{{bear_thesis.output}}"
+          portfolio_summary: "{{portfolio_state.output}}"
+          task: >-
+            Weigh the Bull and Bear arguments alongside the portfolio summary.
+            Formulate a risk-managed Trade Proposal with action (BUY/SELL/HOLD),
+            suggested shares, limit price, stop-loss, and profit target for {{workflow.input.ticker}}.
+        output_schema_override:
+          type: object
+          properties:
+            action:
+              type: string
+              enum: ["BUY", "SELL", "HOLD"]
+              description: "Trade decision: BUY, SELL, or HOLD"
+            shares:
+              type: integer
+              description: "Suggested shares to allocate"
+            fill_price:
+              type: number
+              description: "Limit entry price per share"
+            total_amount:
+              type: number
+              description: "Total dollar allocation (shares * fill_price)"
+            stop_loss:
+              type: number
+              description: "Stop-loss exit price"
+            take_profit:
+              type: number
+              description: "Take-profit target price"
+            primary_edge:
+              type: string
+              description: "Core investment edge and thesis"
+            executive_ticket:
+              type: string
+              description: "Formatted Executive Trade Ticket and markdown summary"
+          required:
+            - action
+            - shares
+            - fill_price
+            - total_amount
+            - primary_edge
+            - executive_ticket
+
+      # Wave 4: Deterministic Risk Audit (Tool Node - Zero Tokens, Rule Parity with RiskOfficer)
+      - id: risk_audit
+        type: tool
+        tool_name: finance-tools__portfolio_audit_risk
+        depends_on:
+          - order_formulation
+        input:
+          ticker: "{{workflow.input.ticker}}"
+          action: "{{order_formulation.output.action}}"
+          shares: "{{order_formulation.output.shares}}"
+          fill_price: "{{order_formulation.output.fill_price}}"
+          stop_loss: "{{order_formulation.output.stop_loss}}"
+          take_profit: "{{order_formulation.output.take_profit}}"
+
+      # Wave 4b: Deterministic Risk Gate (Switch Node - Zero Tokens)
+      - id: risk_gate
+        type: switch
+        depends_on:
+          - risk_audit
+        cases:
+          - condition: "'{{risk_audit.output.effective_action}}' == 'BUY' && {{risk_audit.output.approved_shares}} > 0"
+            node: execute_buy
+          - condition: "'{{risk_audit.output.effective_action}}' == 'SELL' && {{risk_audit.output.approved_shares}} > 0"
+            node: execute_sell
+        default: hold_position
+
+      # Wave 5: Deterministic Ledger Execution (Tool Nodes - Zero Tokens, SQLite)
+      - id: execute_buy
+        type: tool
+        depends_on:
+          - risk_gate
+          - risk_audit
+          - order_formulation
+        tool_name: finance-tools__portfolio_execute_trade
+        input:
+          ticker: "{{workflow.input.ticker}}"
+          action: "BUY"
+          shares: "{{risk_audit.output.approved_shares}}"
+          fill_price: "{{risk_audit.output.fill_price}}"
+          stop_loss: "{{risk_audit.output.stop_loss}}"
+          take_profit: "{{risk_audit.output.take_profit}}"
+          bull_thesis: "{{order_formulation.output.primary_edge}}"
+          bear_thesis: "Downside risks audited against portfolio risk limits."
+          risk_notes: "{{risk_audit.output.risk_notes}}"
+          cio_resolution: "{{order_formulation.output.primary_edge}}"
+
+      - id: execute_sell
+        type: tool
+        depends_on:
+          - risk_gate
+          - risk_audit
+          - order_formulation
+        tool_name: finance-tools__portfolio_execute_trade
+        input:
+          ticker: "{{workflow.input.ticker}}"
+          action: "SELL"
+          shares: "{{risk_audit.output.approved_shares}}"
+          fill_price: "{{risk_audit.output.fill_price}}"
+          stop_loss: "{{risk_audit.output.stop_loss}}"
+          take_profit: "{{risk_audit.output.take_profit}}"
+          bull_thesis: "{{order_formulation.output.primary_edge}}"
+          bear_thesis: "Downside risks audited against portfolio risk limits."
+          risk_notes: "{{risk_audit.output.risk_notes}}"
+          cio_resolution: "{{order_formulation.output.primary_edge}}"
+
+      - id: hold_position
+        type: tool
+        depends_on:
+          - risk_gate
+          - risk_audit
+          - order_formulation
+        tool_name: finance-tools__portfolio_execute_trade
+        input:
+          ticker: "{{workflow.input.ticker}}"
+          action: "HOLD"
+          shares: 0
+          fill_price: 0
+          bull_thesis: "{{order_formulation.output.primary_edge}}"
+          bear_thesis: "Downside risks audited against portfolio risk limits."
+          risk_notes: "{{risk_audit.output.risk_notes}}"
+          cio_resolution: "{{order_formulation.output.primary_edge}}"
+
+    output_mapping:
+      executive_ticket: "{{order_formulation.output.executive_ticket}}"
+      trade_execution:
+        coalesce:
+          - "{{execute_buy.output}}"
+          - "{{execute_sell.output}}"
+          - "{{hold_position.output}}"
+      risk_verdict: "{{risk_audit.output}}"
+      trade_proposal: "{{order_formulation.output}}"
+      technicals: "{{technicals_tool.output}}"
+      fundamentals: "{{fundamentals_tool.output}}"
+      options_sentiment: "{{options_tool.output}}"
+      bull_thesis: "{{bull_thesis.output}}"
+      bear_thesis: "{{bear_thesis.output}}"

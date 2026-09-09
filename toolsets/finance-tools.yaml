@@ -1,0 +1,7 @@
+kind: toolset
+name: finance-tools
+description: >-
+  Financial market analysis and portfolio ledger tools. Provides technical analysis,
+  fundamental financial statements, portfolio status queries, and trade execution into SQLite.
+spec:
+  config: {}
