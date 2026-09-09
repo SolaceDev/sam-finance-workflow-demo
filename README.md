@@ -151,8 +151,8 @@ To solve this, `prediction_search_markets` in `finance-tools` implements the **A
 
 1. **Clone the repository:**
    ```bash
-   git clone <repository-url>
-   cd finance_workflow
+   git clone https://github.com/SolaceDev/sam-finance-workflow-demo.git
+   cd sam-finance-workflow-demo
    ```
 
 2. **Configure Environment Variables:**
