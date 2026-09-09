@@ -175,15 +175,20 @@ To solve this, `prediction_search_markets` in `finance-tools` implements the **A
 
 ### Deploy the Configuration
 
-Plan and apply the declarative configuration against your running SAM instance:
+Plan and apply the declarative configuration against your running SAM instance.
+
+#### For SAM Desktop Users (Recommended):
+Use `manifests/desktop.yaml` which automatically discovers and connects to the running SAM Desktop app (`target.name: desktop` with no login required):
 
 ```bash
 # Preview proposed changes
-sam config plan -m manifests/dev.yaml
+sam config plan -m manifests/desktop.yaml
 
 # Apply and deploy toolsets, agents, and workflows
-sam config apply -m manifests/dev.yaml
+sam config apply -m manifests/desktop.yaml
 ```
+
+*(If you are running an embedded terminal or remote instance instead of Desktop, use `-m manifests/dev.yaml` to target `http://127.0.0.1:8800` directly).*
 
 ### Executing Workflows & Agents
 
@@ -273,7 +278,8 @@ Both workflows emit a comprehensive **Executive Trade Ticket** containing:
 
 ```text
 ├── manifests/
-│   └── dev.yaml                      # Root declarative deployment manifest
+│   ├── desktop.yaml                  # Primary deployment manifest targeting SAM Desktop (target.name: desktop)
+│   └── dev.yaml                      # Alternative manifest targeting local/embedded URL (http://127.0.0.1:8800)
 ├── workflows/
 │   ├── trading-desk-optimized.yaml   # Hybrid workflow (tool nodes + switch gates + debate agents)
 │   └── trading-desk-all-agents.yaml  # Baseline 100% agent workflow (5 waves, 8 agents)
