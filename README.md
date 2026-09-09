@@ -187,22 +187,85 @@ sam config apply -m manifests/dev.yaml
 
 ### Executing Workflows & Agents
 
-#### 1. Run the Graph-Optimized Workflow (Recommended)
-Fast, token-efficient hybrid execution:
+You can invoke the workflows and agents either via the **SAM CLI** or through the **SAM Web UI**.
+
+#### Understanding the Workflow Choices
+
+| Workflow / Agent | Target Name (`-a`) | Best Used For | Execution Profile |
+|---|---|---|---|
+| **Graph-Optimized Workflow** | `TradingDeskOptimized` | Daily portfolio analysis, production trading decisions, fast evaluations. | **~2 minutes**, **~114k tokens** (88.5% cheaper, 57% faster) |
+| **All-Agent Baseline Workflow** | `TradingDeskAllAgents` | Demonstrating pure multi-agent mesh orchestration, research baselines, and benchmarking. | **~4.5 minutes**, **~991k tokens** (10 full LLM agent turns) |
+| **Polymarket Sentiment Agent** | `PredictionSentimentAnalyst` | Standalone crowd-probability queries on macro events, tech milestones, and earnings odds. | **~30-60 seconds**, **~28k tokens** (artifact-backed) |
+
+---
+
+#### Method 1: Running via SAM CLI (`sam task send`)
+
+`sam task send` sends a task prompt directly to the workflow entrypoint and streams back real-time progress and output:
+
+##### Key CLI Flags:
+- `-a, --agent <name>`: Names the target workflow (`TradingDeskOptimized` or `TradingDeskAllAgents`) or agent (`PredictionSentimentAnalyst`).
+- `--timeout <duration>`: Multi-agent workflows execute parallel LLM reasoning waves. Use `--timeout 4m` for the optimized workflow and `--timeout 6m` for the unoptimized baseline.
+- `--insecure`: Required when connecting to local or internal HTTP endpoints (e.g. `http://127.0.0.1:8800`) without TLS.
+- `-d, --data '<json>'`: (Optional) Explicitly inject typed inputs matching the workflow schema (e.g. `{"ticker": "SHOP"}`).
+
+##### 1. Execute the Graph-Optimized Workflow (Recommended)
+Evaluates any equity ticker using sub-second tool nodes for data/risk and LLMs for the Bull/Bear debate:
+
 ```bash
+# Natural language invocation (evaluates NVDA)
 sam task send "Evaluate NVDA for portfolio allocation" -a TradingDeskOptimized --insecure --timeout 4m
+
+# Explicit structured ticker input (evaluates SHOP)
+sam task send "Evaluate SHOP for portfolio allocation" -a TradingDeskOptimized -d '{"ticker": "SHOP"}' --insecure --timeout 4m
+
+# Evaluating other tickers (e.g. CLS, AAPL, AMZN)
+sam task send "Evaluate CLS: analyze momentum, fundamentals, and options sentiment to recommend a position" -a TradingDeskOptimized -d '{"ticker": "CLS"}' --insecure --timeout 4m
 ```
 
-#### 2. Run the All-Agent Baseline Workflow
-Full LLM multi-agent baseline (for benchmarking / comparison):
+##### 2. Execute the All-Agent Baseline Workflow
+Dispatches 8 specialized LLM agents across 5 waves for comparison:
+
 ```bash
+# Natural language invocation
 sam task send "Evaluate NVDA for portfolio allocation" -a TradingDeskAllAgents --insecure --timeout 6m
+
+# Explicit structured ticker input
+sam task send "Evaluate SHOP for portfolio allocation" -a TradingDeskAllAgents -d '{"ticker": "SHOP"}' --insecure --timeout 6m
 ```
 
-#### 3. Query the Standalone Polymarket Sentiment Agent
+##### 3. Query the Standalone Polymarket Sentiment Agent
+Query live crowd-implied probabilities for any real-world event:
+
 ```bash
+# Tech / AI sentiment query
 sam task send "Can you check the sentiment to see who will have the best AI model at the end of the year?" -a PredictionSentimentAnalyst --insecure --timeout 2m
+
+# Macro / Interest rate query
+sam task send "Check Polymarket odds for whether the Fed will cut interest rates at the next FOMC meeting." -a PredictionSentimentAnalyst --insecure --timeout 2m
 ```
+
+---
+
+#### Method 2: Running via SAM Web UI
+
+1. Open your browser to the SAM Web Console (default: `http://localhost:8800`).
+2. In the chat interface, click the agent/workflow dropdown picker.
+3. Select **`TradingDeskOptimized`** (or **`TradingDeskAllAgents`**).
+4. Enter your prompt (e.g., `"Evaluate NVDA for portfolio allocation"` or `"Analyze SHOP"`).
+5. Watch the execution canvas illuminate in real time as Wave 1 (Data Fetching), Wave 2 (Bull vs. Bear Debate), Wave 3 (Trade Formulation), Wave 4 (Risk Audit), and Wave 5 (Ledger Commit) execute sequentially and concurrently.
+
+---
+
+#### What to Expect in the Final Output
+
+Both workflows emit a comprehensive **Executive Trade Ticket** containing:
+1. **Quantitative Technicals:** Real-time price, 20/50/200-day SMAs, 14-day RSI, MACD signal, and key support/resistance levels.
+2. **Fundamental Analysis:** P/E multiples, YoY quarterly revenue growth, operating margins, and balance sheet assessment.
+3. **Institutional Options Flow:** 30-day implied volatility (`IV30`), Put/Call volume and open interest ratios, and market regime.
+4. **Bull vs. Bear Research Summary:** Core growth catalysts weighed directly against multiple compression and macro headwinds.
+5. **Trade Proposal & Risk Verdict:** Proposed action (`BUY`, `SELL`, or `HOLD`), suggested shares, limit price, stop-loss, profit target, and risk officer audit findings (10% single-asset cap, 2:1 R/R, and cash liquidity check).
+6. **SQLite Ledger Transaction:** Atomic trade execution record and updated portfolio cash/position balances.
 
 ---
 
