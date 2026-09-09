@@ -4,6 +4,8 @@ An enterprise-grade, multi-agent financial trading desk built with declarative c
 
 This repository demonstrates the architectural power of **Agent Nodes vs. Tool Nodes** in AI workflow design. It provides a head-to-head comparison between an unoptimized **"All-Agent"** baseline workflow and a graph-optimized **"Hybrid Tool/Agent"** workflow that achieves an **88.5% reduction in token consumption** and **57.2% faster execution** while preserving 100% of the cognitive reasoning.
 
+> **Disclaimer & Support Notice:** This repository is an open-source demonstration and educational reference project. It is provided **"as-is" without any official support, service level agreements (SLAs), maintenance, or warranty** from Solace. It is not an officially supported Solace product. Nothing in this repository constitutes financial, investment, trading, or tax advice.
+
 ---
 
 ## Table of Contents
@@ -20,6 +22,8 @@ This repository demonstrates the architectural power of **Agent Nodes vs. Tool N
   - [Deploy the Configuration](#deploy-the-configuration)
   - [Executing Workflows & Agents](#executing-workflows--agents)
 - [Repository Structure](#repository-structure)
+- [Support & Disclaimer](#support--disclaimer)
+- [License](#license)
 
 ---
 
@@ -308,6 +312,19 @@ Both workflows emit a comprehensive **Executive Trade Ticket** containing:
 ├── .env.example                      # Environment variables template
 └── .gitignore                        # Git exclusion rules (protects credentials & stim traces)
 ```
+
+---
+
+## Support & Disclaimer
+
+### No Official Support
+This project is an open-source demonstration and community example developed to illustrate workflow optimization patterns on Solace Agent Mesh. **It is provided strictly on an "AS-IS" basis without official commercial support, warranty, or commitment to future updates from Solace.** 
+
+- Do not contact Solace Customer Support regarding issues or questions related to this demo.
+- For community discussion, feedback, or sharing ideas, visit the [Solace Community Forum](https://solace.community/) or open an issue/discussion in this repository.
+
+### Financial Advice Disclaimer
+The code, market analysis tools, and workflows contained in this repository are for educational, prototyping, and demonstration purposes only. They simulate institutional trading desk workflows using publicly available delayed quotes and paper portfolio tracking. **Nothing in this repository constitutes financial, investment, legal, or trading advice.**
 
 ---
 
