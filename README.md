@@ -10,6 +10,7 @@ This repository demonstrates the architectural power of **Agent Nodes vs. Tool N
 
 ## Table of Contents
 
+- [Quickstart](#quickstart)
 - [Overview & Investment Process](#overview--investment-process)
 - [Workflow Architecture](#workflow-architecture)
   - [Workflow Flow Diagram](#workflow-flow-diagram)
@@ -24,6 +25,38 @@ This repository demonstrates the architectural power of **Agent Nodes vs. Tool N
 - [Repository Structure](#repository-structure)
 - [Support & Disclaimer](#support--disclaimer)
 - [License](#license)
+
+---
+
+## Quickstart
+
+Get the trading desk deployed and running in under 2 minutes:
+
+### 1. Deploy the Configuration
+Ensure your environment (`.env`) and models (`models/*.yaml`) are created from the examples, then apply the manifest:
+
+```bash
+# Apply and deploy all toolsets, agents, and workflows to SAM Desktop
+sam config apply -m manifests/desktop.yaml
+```
+
+*(Note: For an embedded terminal or custom URL instance, use `-m manifests/dev.yaml`).*
+
+### 2. Run the Optimized Workflow (Recommended)
+Evaluates equity tickers using zero-token tool nodes for data fetching and risk auditing, reserving LLMs strictly for adversarial debate and trade formulation:
+
+```bash
+sam task send "Evaluate NVDA for portfolio allocation" -a TradingDeskOptimized --insecure --timeout 4m
+```
+* **Performance:** **~2 minutes**, **~114k tokens** (88.5% token reduction, 57% faster).
+
+### 3. Run the Unoptimized Workflow (All-Agent Baseline)
+Runs the identical end-to-end investment analysis using 8 separate LLM agents across 5 waves for comparison:
+
+```bash
+sam task send "Evaluate NVDA for portfolio allocation" -a TradingDeskAllAgents --insecure --timeout 6m
+```
+* **Performance:** **~4.5 minutes**, **~991k tokens** (full multi-agent cognitive baseline).
 
 ---
 
