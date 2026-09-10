@@ -40,21 +40,19 @@ Ensure your environment (`.env`) and models (`models/*.yaml`) are created from t
 sam config apply -m manifests/desktop.yaml
 ```
 
-*(Note: For an embedded terminal or custom URL instance, use `-m manifests/dev.yaml`).*
-
 ### 2. Run the Optimized Workflow (Recommended)
 Evaluates equity tickers using zero-token tool nodes for data fetching and risk auditing, reserving LLMs strictly for adversarial debate and trade formulation:
 
-```bash
-sam task send "Evaluate NVDA for portfolio allocation" -a TradingDeskOptimized --insecure --timeout 4m
+```text
+Use the TradingDeskOptimized workflow to evaluate NVDA for portfolio allocation
 ```
 * **Performance:** **~2 minutes**, **~114k tokens** (88.5% token reduction, 57% faster).
 
 ### 3. Run the Unoptimized Workflow (All-Agent Baseline)
 Runs the identical end-to-end investment analysis using 8 separate LLM agents across 5 waves for comparison:
 
-```bash
-sam task send "Evaluate NVDA for portfolio allocation" -a TradingDeskAllAgents --insecure --timeout 6m
+```text
+Use the TradingDeskAllAgents workflow to evaluate NVDA for portfolio allocation
 ```
 * **Performance:** **~4.5 minutes**, **~991k tokens** (full multi-agent cognitive baseline).
 
@@ -225,8 +223,6 @@ sam config plan -m manifests/desktop.yaml
 sam config apply -m manifests/desktop.yaml
 ```
 
-*(If you are running an embedded terminal or remote instance instead of Desktop, use `-m manifests/dev.yaml` to target `http://127.0.0.1:8800` directly).*
-
 ### Executing Workflows & Agents
 
 You can invoke the workflows and agents either via the **SAM CLI** or through the **SAM Web UI**.
@@ -316,7 +312,7 @@ Both workflows emit a comprehensive **Executive Trade Ticket** containing:
 ```text
 ├── manifests/
 │   ├── desktop.yaml                  # Primary deployment manifest targeting SAM Desktop (target.name: desktop)
-│   └── dev.yaml                      # Alternative manifest targeting local/embedded URL (http://127.0.0.1:8800)
+│   └── dev.yaml                      # Alternative manifest targeting explicit URL (http://127.0.0.1:8800)
 ├── workflows/
 │   ├── trading-desk-optimized.yaml   # Hybrid workflow (tool nodes + switch gates + debate agents)
 │   └── trading-desk-all-agents.yaml  # Baseline 100% agent workflow (5 waves, 8 agents)
