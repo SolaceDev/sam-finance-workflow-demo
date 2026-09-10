@@ -19,7 +19,6 @@ This repository demonstrates the architectural power of **Agent Nodes vs. Tool N
 - [Polymarket Sentiment Agent & Artifact Pattern](#polymarket-sentiment-agent--artifact-pattern)
 - [Example Prompts](#example-prompts)
 - [How to Run](#how-to-run)
-  - [Prerequisites & Setup](#prerequisites--setup)
   - [Deploy the Configuration](#deploy-the-configuration)
   - [Executing Workflows & Agents](#executing-workflows--agents)
 - [Repository Structure](#repository-structure)
@@ -33,12 +32,14 @@ This repository demonstrates the architectural power of **Agent Nodes vs. Tool N
 Get the trading desk deployed and running in under 2 minutes:
 
 ### 1. Deploy the Configuration
-Ensure your environment (`.env`) and models (`models/*.yaml`) are created from the examples, then apply the manifest:
+From the cloned repository, apply the desktop manifest:
 
 ```bash
 # Apply and deploy all toolsets, agents, and workflows to SAM Desktop
 sam config apply -m manifests/desktop.yaml
 ```
+
+*(Note: If your SAM instance does not have models configured yet, copy the templates from `models/*.example` and configure your API key in `.env`).*
 
 ### 2. Run the Optimized Workflow (Recommended)
 Evaluates equity tickers using zero-token tool nodes for data fetching and risk auditing, reserving LLMs strictly for adversarial debate and trade formulation:
@@ -191,46 +192,19 @@ To solve this, `prediction_search_markets` in `finance-tools` implements the **A
 
 ## How to Run
 
-### Prerequisites & Setup
-
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/SolaceDev/sam-finance-workflow-demo.git
-   cd sam-finance-workflow-demo
-   ```
-
-2. **Configure Environment Variables:**
-   Copy the example environment template:
-   ```bash
-   cp .env.example .env
-   ```
-   Edit `.env` to set your LLM API key:
-   ```bash
-   OPENROUTER_API_KEY=your-api-key-here
-   # Or configure LLM_SERVICE_API_KEY if using an internal LiteLLM / proxy gateway
-   ```
-
-3. **Configure Model Providers:**
-   Create active model configurations from the provided examples:
-   ```bash
-   cp models/general.yaml.example models/general.yaml
-   cp models/planning.yaml.example models/planning.yaml
-   ```
-
 ### Deploy the Configuration
 
-Plan and apply the declarative configuration against your running SAM instance.
-
-#### For SAM Desktop Users (Recommended):
-Use `manifests/desktop.yaml` which automatically discovers and connects to the running SAM Desktop app (`target.name: desktop` with no login required):
+From the repository root, plan and apply the declarative configuration against your running SAM Desktop instance:
 
 ```bash
-# Preview proposed changes
+# Preview proposed changes (optional)
 sam config plan -m manifests/desktop.yaml
 
 # Apply and deploy toolsets, agents, and workflows
 sam config apply -m manifests/desktop.yaml
 ```
+
+*(Note: The demo uses public data sources from Yahoo Finance, CBOE, and Polymarket, requiring no external financial data API keys. If your SAM instance does not already have models configured, copy `models/*.example` and configure your LLM provider key in `.env`).*
 
 ### Executing Workflows & Agents
 
