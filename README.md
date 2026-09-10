@@ -56,6 +56,14 @@ Use the TradingDeskAllAgents workflow to evaluate NVDA for portfolio allocation
 ```
 * **Performance:** **~4.5 minutes**, **~991k tokens** (full multi-agent cognitive baseline).
 
+### 4. Query the Prediction Market Agent (Optional)
+Assesses crowd-implied probabilities and real-world sentiment from live Polymarket contracts:
+
+```text
+Use the PredictionSentimentAnalyst agent to check: Will the FOMC raise rates at the next meeting?
+```
+* **Performance:** **~30–60 seconds**, **~28k tokens** (artifact-first design pattern).
+
 ---
 
 ## Overview & Investment Process
