@@ -2,7 +2,7 @@
 
 An enterprise-grade, multi-agent financial trading desk built with declarative configurations on [Solace Agent Mesh (SAM)](https://docs.solace.com/Agent-Mesh/agent-mesh.htm).
 
-This repository demonstrates the architectural power of **Agent Nodes vs. Tool Nodes** in AI workflow design. It provides a head-to-head comparison between an unoptimized **"All-Agent"** baseline workflow and a graph-optimized **"Hybrid Tool/Agent"** workflow that achieves an **88.5% reduction in token consumption** and **57.2% faster execution** while preserving 100% of the cognitive reasoning.
+This repository demonstrates the architectural power of **Agent Nodes vs. Tool Nodes** in AI workflow design. It provides a head-to-head comparison between an unoptimized **"All-Agent"** baseline workflow and a graph-optimized **"Hybrid Tool/Agent"** workflow that achieves a **59.2% reduction in total token consumption** (and a **67.9% reduction in node-level LLM tokens**) and **35.8% faster execution** while preserving 100% of the cognitive reasoning.
 
 > **Disclaimer & Support Notice:** This repository is an open-source demonstration and educational reference project. It is provided **"as-is" without any official support, service level agreements (SLAs), maintenance, or warranty** from Solace. It is not an officially supported Solace product. Nothing in this repository constitutes financial, investment, trading, or tax advice.
 
@@ -46,7 +46,7 @@ Evaluates equity tickers using zero-token tool nodes for data fetching and risk 
 ```text
 Use the TradingDeskOptimized workflow to evaluate NVDA for portfolio allocation
 ```
-* **Performance:** **~2 minutes**, **~114k tokens** (88.5% token reduction, 57% faster).
+* **Performance:** **~2.8 minutes**, **~149k tokens** (59.2% token reduction, 35.8% faster).
 
 ### 3. Run the Unoptimized Workflow (All-Agent Baseline)
 Runs the identical end-to-end investment analysis using 8 separate LLM agents across 5 waves for comparison:
@@ -54,7 +54,7 @@ Runs the identical end-to-end investment analysis using 8 separate LLM agents ac
 ```text
 Use the TradingDeskAllAgents workflow to evaluate NVDA for portfolio allocation
 ```
-* **Performance:** **~4.5 minutes**, **~991k tokens** (full multi-agent cognitive baseline).
+* **Performance:** **~4.3 minutes**, **~366k tokens** (full multi-agent cognitive baseline).
 
 ### 4. Query the Prediction Market Agent (Optional)
 Assesses crowd-implied probabilities and real-world sentiment from live Polymarket contracts:
@@ -132,19 +132,20 @@ flowchart TD
 
 ## Benchmark Results: Head-to-Head Comparison
 
-Empirical performance benchmark collected on identical market conditions and ticker (`SHOP`) using `claude-sonnet-4-6`:
+Empirical performance benchmark collected on identical institutional trading desk workflows with options sentiment analysis and deterministic risk auditing:
 
 | Metric | All-Agent Baseline (`TradingDeskAllAgents`) | Graph-Optimized (`TradingDeskOptimized`) | Improvement |
 |---|---|---|---|
-| **Total Billed Tokens** | **991,542 tokens** (~1.0M) | **113,963 tokens** (~114k) | **-88.5% token reduction** |
-| **Total Execution Duration** | **279.7s** (4m 40s) | **119.8s** (2m 00s) | **57.2% faster** |
-| **Data Collection Tokens** | 682,051 tokens (68.8% of run) | **0 tokens** (`type: tool`) | **100% elimination** |
-| **Data Collection Latency** | 67.6s | **0.35s** (Compiled Go) | **99.5% faster** |
-| **Risk Audit & Execution Tokens** | 117,471 tokens | **0 tokens** (`type: tool` & `switch`) | **100% elimination** |
-| **Risk Audit & Execution Latency** | 64.6s | **0.05s** (Sub-second pure Go) | **99.9% faster** |
-| **Reasoning Fidelity** | Full Bull/Bear Debate + Trader | Full Bull/Bear Debate + Trader | **100% Identical** |
+| **Total Billed Tokens** | **365,974 tokens** (~366k) | **149,395 tokens** (~149k) | **-59.2% token reduction** |
+| **Node-Level LLM Tokens** | **317,769 tokens** | **102,149 tokens** | **-67.9% token reduction** |
+| **Total Execution Duration** | **260.4s** (4m 20s) | **167.3s** (2m 47s) | **35.8% faster** |
+| **Data Collection Tokens** | 86,360 tokens (Market, Fundamentals, Options) | **0 tokens** (`type: tool`) | **100% elimination** |
+| **Data Collection Latency** | 27.6s (3 LLM agents in parallel) | **0.47s** (Sub-second pure Go) | **98.3% faster** |
+| **Risk Audit & Execution Tokens** | 125,075 tokens (RiskOfficer + PortfolioManager) | **0 tokens** (`type: tool` & `switch`) | **100% elimination** |
+| **Risk Audit & Execution Latency** | 70.1s (2 sequential LLM agents) | **0.11s** (`portfolio_audit_risk` + SQLite) | **99.8% faster** |
+| **Cognitive Reasoning Tokens** | 106,334 tokens (Bull, Bear, Trader) | 102,149 tokens (Bull, Bear, Trader) | **100% Identical Depth** |
 
-> **Key Takeaway:** The cheapest node in your AI workflow has no AI in it. Transitioning mechanical data lookups and deterministic calculations to tool nodes slashed nearly 900,000 tokens while maintaining institutional-grade reasoning depth.
+> **Key Takeaway:** The cheapest node in your AI workflow has no AI in it. Transitioning mechanical data lookups (technicals, fundamentals, options) and mathematical risk calculations (10% equity cap, 2.0 R/R ratio, cash liquidity checks) to tool nodes eliminated **over 211,000 tokens** and **~93 seconds** of latency without sacrificing a single drop of analytical depth.
 
 ---
 
@@ -239,8 +240,8 @@ You can invoke the workflows and agents either via the **SAM CLI** or through th
 
 | Workflow / Agent | Target Name (`-a`) | Best Used For | Execution Profile |
 |---|---|---|---|
-| **Graph-Optimized Workflow** | `TradingDeskOptimized` | Daily portfolio analysis, production trading decisions, fast evaluations. | **~2 minutes**, **~114k tokens** (88.5% cheaper, 57% faster) |
-| **All-Agent Baseline Workflow** | `TradingDeskAllAgents` | Demonstrating pure multi-agent mesh orchestration, research baselines, and benchmarking. | **~4.5 minutes**, **~991k tokens** (10 full LLM agent turns) |
+| **Graph-Optimized Workflow** | `TradingDeskOptimized` | Daily portfolio analysis, production trading decisions, fast evaluations. | **~2.8 minutes**, **~149k tokens** (59.2% cheaper, 35.8% faster) |
+| **All-Agent Baseline Workflow** | `TradingDeskAllAgents` | Demonstrating pure multi-agent mesh orchestration, research baselines, and benchmarking. | **~4.3 minutes**, **~366k tokens** (8 full LLM agent turns) |
 | **Polymarket Sentiment Agent** | `PredictionSentimentAnalyst` | Standalone crowd-probability queries on macro events, tech milestones, and earnings odds. | **~30-60 seconds**, **~28k tokens** (artifact-backed) |
 
 ---

@@ -129,3 +129,39 @@ By demoting deterministic nodes to `type: tool` and `type: switch`:
 | **Risk & Execution Latency** | 64.6s | **0.05s** | -64.5s | **99.9% faster** |
 | **Reasoning Fidelity** | Full Bull/Bear Debate + Trader | Full Bull/Bear Debate + Trader | Identical | Preserved 100% |
 
+---
+
+## Benchmark 3: Apples-to-Apples Clean Comparison (Options Sentiment & Full Deterministic Risk Parity)
+
+- **Date:** 2026-09-09
+- **Platform:** `solace-agent-mesh-go`
+- **Model:** `anthropic/claude-sonnet-4-6` via LiteLLM
+- **Description:** Replaced the uncurated Polymarket connector with institutional options sentiment (`options_tool` / `OptionsAnalyst`) and gave the optimized workflow 100% parity on risk rules via `portfolio_audit_risk` (10% single-asset concentration cap, 2:1 R/R ratio, cash checks, and dynamic position downsizing).
+- **Baseline Trace:** `01a08763-0606-7cf4-b6c2-f56a7e448581` (`TradingDeskAllAgents`)
+- **Optimized Trace:** `01a0877f-bb80-75e3-9d22-72e40c4a8ec6` (`TradingDeskOptimized`)
+
+### Clean Head-to-Head Comparison Table
+
+| Metric | All-Agents Baseline (`TradingDeskAllAgents`) | Graph-Optimized (`TradingDeskOptimized`) | Savings / Improvement |
+|---|---|---|---|
+| **Total Duration** | **260.4s (4m 20s)** | **167.3s (2m 47s)** | **-93.1s (35.8% faster)** |
+| **Total Billed Tokens** | **365,974 tokens** | **149,395 tokens** | **-216,579 tokens (-59.2%)** |
+| **Node-Level LLM Tokens** | **317,769 tokens** | **102,149 tokens** | **-215,620 tokens (-67.9%)** |
+| **Deterministic Node Tokens** | **211,435 tokens** | **0 tokens** | **-211,435 tokens (-100%)** |
+| **Cognitive LLM Tokens** | **106,334 tokens** | **102,149 tokens** | **100% Identical Depth** |
+
+### Stage-by-Stage Breakdown
+
+1. **Data Collection (Technicals, Fundamentals, Options):**
+   - **Baseline (3 LLM agents):** 27.6s, **86,360 tokens** (MarketAnalyst: 28,745; FundamentalsAnalyst: 29,023; OptionsAnalyst: 28,592)
+   - **Optimized (3 tool nodes):** 0.47s, **0 tokens** (100% reduction, 98.3% faster)
+
+2. **Cognitive Synthesis (Bull Researcher, Bear Researcher, Trader):**
+   - **Baseline (3 LLM agents):** 143.8s, **106,334 tokens** (Bull: 34,400; Bear: 34,899; Trader: 37,035)
+   - **Optimized (3 LLM agents):** 143.6s, **102,149 tokens** (Bull: 30,639; Bear: 32,975; Trader: 38,535)
+
+3. **Risk Audit & Ledger Execution:**
+   - **Baseline (2 LLM agents):** 70.1s, **125,075 tokens** (RiskOfficer: 31,918; PortfolioManager: 93,157)
+   - **Optimized (`portfolio_audit_risk` tool + switch + SQLite tool):** 0.11s, **0 tokens** (100% reduction, 99.8% faster)
+
+
