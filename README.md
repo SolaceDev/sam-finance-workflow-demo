@@ -177,11 +177,13 @@ To solve this, `prediction_search_markets` in `finance-tools` implements the **A
 
 ## Example Prompts
 
+> **Routing Tip for Chat / Orchestrator:** When chatting with the default Orchestrator in the Web UI, always explicitly specify the workflow name (e.g., **`Use the TradingDeskOptimized workflow to...`**). If you prompt with generic phrases like *"Analyze moving averages for CLS"* or *"Evaluate NVDA"*, the Orchestrator will match the individual skills of specialist agents (such as `MarketAnalyst` or `FundamentalsAnalyst`) and delegate to them piecemeal instead of initiating the full multi-stage trading desk pipeline.
+
 ### Trading Desk Workflows
-- `"Evaluate NVDA for portfolio allocation"`
-- `"Use TradingDeskOptimized to evaluate SHOP — should we allocate capital today?"`
-- `"Analyze CLS: assess moving averages, corporate revenue margins, and options open interest, then issue a trade recommendation"`
-- `"Run an allocation review on AAPL considering current macro risks"`
+- `"Use the TradingDeskOptimized workflow to evaluate NVDA for portfolio allocation"`
+- `"Use the TradingDeskOptimized workflow to evaluate SHOP — should we allocate capital today?"`
+- `"Use the TradingDeskOptimized workflow to evaluate CLS: run technicals, fundamentals, options sentiment, and risk analysis to issue a trade decision"`
+- `"Use the TradingDeskAllAgents workflow to evaluate AAPL for portfolio allocation"`
 
 ### Polymarket Sentiment Agent
 - `"Can you check the sentiment to see who will have the best AI model at the end of the year?"`
@@ -235,13 +237,13 @@ Evaluates any equity ticker using sub-second tool nodes for data/risk and LLMs f
 
 ```bash
 # Natural language invocation (evaluates NVDA)
-sam task send "Evaluate NVDA for portfolio allocation" -a TradingDeskOptimized --insecure --timeout 4m
+sam task send "Use the TradingDeskOptimized workflow to evaluate NVDA for portfolio allocation" -a TradingDeskOptimized --insecure --timeout 4m
 
 # Explicit structured ticker input (evaluates SHOP)
-sam task send "Evaluate SHOP for portfolio allocation" -a TradingDeskOptimized -d '{"ticker": "SHOP"}' --insecure --timeout 4m
+sam task send "Use the TradingDeskOptimized workflow to evaluate SHOP for portfolio allocation" -a TradingDeskOptimized -d '{"ticker": "SHOP"}' --insecure --timeout 4m
 
 # Evaluating other tickers (e.g. CLS, AAPL, AMZN)
-sam task send "Evaluate CLS: analyze momentum, fundamentals, and options sentiment to recommend a position" -a TradingDeskOptimized -d '{"ticker": "CLS"}' --insecure --timeout 4m
+sam task send "Use the TradingDeskOptimized workflow to evaluate CLS: analyze momentum, fundamentals, and options sentiment to recommend a position" -a TradingDeskOptimized -d '{"ticker": "CLS"}' --insecure --timeout 4m
 ```
 
 ##### 2. Execute the All-Agent Baseline Workflow
@@ -249,10 +251,10 @@ Dispatches 8 specialized LLM agents across 5 waves for comparison:
 
 ```bash
 # Natural language invocation
-sam task send "Evaluate NVDA for portfolio allocation" -a TradingDeskAllAgents --insecure --timeout 6m
+sam task send "Use the TradingDeskAllAgents workflow to evaluate NVDA for portfolio allocation" -a TradingDeskAllAgents --insecure --timeout 6m
 
 # Explicit structured ticker input
-sam task send "Evaluate SHOP for portfolio allocation" -a TradingDeskAllAgents -d '{"ticker": "SHOP"}' --insecure --timeout 6m
+sam task send "Use the TradingDeskAllAgents workflow to evaluate SHOP for portfolio allocation" -a TradingDeskAllAgents -d '{"ticker": "SHOP"}' --insecure --timeout 6m
 ```
 
 ##### 3. Query the Standalone Polymarket Sentiment Agent
@@ -273,7 +275,7 @@ sam task send "Check Polymarket odds for whether the Fed will cut interest rates
 1. Open your browser to the SAM Web Console (default: `http://localhost:8800`).
 2. In the chat interface, click the agent/workflow dropdown picker.
 3. Select **`TradingDeskOptimized`** (or **`TradingDeskAllAgents`**).
-4. Enter your prompt (e.g., `"Evaluate NVDA for portfolio allocation"` or `"Analyze SHOP"`).
+4. Enter your prompt (e.g., `"Use the TradingDeskOptimized workflow to evaluate NVDA for portfolio allocation"` or `"Use the TradingDeskOptimized workflow to analyze SHOP"`).
 5. Watch the execution canvas illuminate in real time as Wave 1 (Data Fetching), Wave 2 (Bull vs. Bear Debate), Wave 3 (Trade Formulation), Wave 4 (Risk Audit), and Wave 5 (Ledger Commit) execute sequentially and concurrently.
 
 ---
